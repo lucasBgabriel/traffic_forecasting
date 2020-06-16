@@ -1,12 +1,12 @@
 ---
-base_dir: data/model
+base_dir: ../data/model
 log_level: INFO
 data:
   batch_size: 64
-  dataset_dir: data/packets
+  dataset_dir: ../data/packets
   test_batch_size: 64
   val_batch_size: 64
-  graph_pkl_filename: data/sensor_graph/adj_mx.pkl
+  graph_pkl_filename: ../data/sensor_graph/adj_mx.pkl
 
 model:
   cl_decay_steps: 2000
