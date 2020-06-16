@@ -1,8 +1,17 @@
 # network traffic forecasting
 
 ---
+## Dataset
 
+---
 ## DCRNN
+
+This work is based on the [DCRNN](https://github.com/liyaguang/DCRNN) repository, changing a few things from
+their original algorithm to better fit our problem. All credits 
+
+### Running
+
+More information inside the `DCRNN/`
 
 Generate train data to `users`:
 
@@ -25,3 +34,7 @@ Train data:
 Evaluate training:
 
 `python -m scripts.eval_baseline_methods --traffic_reading_filename=../data/users.h5`
+
+---
+
+## LSTM
