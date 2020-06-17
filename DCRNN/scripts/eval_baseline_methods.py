@@ -84,11 +84,13 @@ def var_predict(df, output_folder, n_forwards=(1, 3), n_lags=4, test_ratio=0.2):
     file_path = os.path.join(os.getcwd(), output_folder)
     filename = os.path.basename(file_path)
 
+    df_test.to_csv(os.path.join(file_path, f"{filename}_test.csv"), index=False)
+    
     for i, n_forward in enumerate(n_forwards):
         df_predict = pd.DataFrame(scaler.inverse_transform(result[i]), index=df_test.index, columns=df_test.columns)
         df_predicts.append(df_predict)
 
-        df_predict.to_csv(os.path.join(file_path, f"filename_{n_forward}.csv"), index=False)
+        df_predict.to_csv(os.path.join(file_path, f"{filename}_{n_forward}.csv"), index=False)
 
     return df_predicts, df_test
 
