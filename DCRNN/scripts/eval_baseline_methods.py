@@ -1,5 +1,6 @@
 import argparse
 import numpy as np
+import os
 import pandas as pd
 
 from statsmodels.tsa.vector_ar.var_model import VAR
@@ -8,12 +9,11 @@ from lib import utils
 from lib.metrics import masked_rmse_np, masked_mape_np, masked_mae_np
 from lib.utils import StandardScaler
 
-
-def historical_average_predict(df, period=12 * 24 * 7, test_ratio=0.2, null_val=0.):
+def historical_average_predict(df, period=5, test_ratio=0.2, null_val=0.):
     """
     Calculates the historical average of sensor reading.
     :param df:
-    :param period: default 1 week.
+    :param period: default 5 hours.
     :param test_ratio:
     :param null_val: default 0.
     :return:
@@ -50,7 +50,7 @@ def static_predict(df, n_forward, test_ratio=0.2):
     return y_predict, y_test
 
 
-def var_predict(df, n_forwards=(1, 3), n_lags=4, test_ratio=0.2):
+def var_predict(df, output_folder, n_forwards=(1, 3), n_lags=4, test_ratio=0.2):
     """
     Multivariate time series forecasting using Vector Auto-Regressive Model.
     :param df: pandas.DataFrame, index: time, columns: sensor id, content: data.
@@ -80,9 +80,16 @@ def var_predict(df, n_forwards=(1, 3), n_lags=4, test_ratio=0.2):
                 result[i, result_ind, :] = prediction[n_forward - 1, :]
 
     df_predicts = []
+
+    file_path = os.path.join(os.getcwd(), output_folder)
+    filename = os.path.basename(file_path)
+
     for i, n_forward in enumerate(n_forwards):
         df_predict = pd.DataFrame(scaler.inverse_transform(result[i]), index=df_test.index, columns=df_test.columns)
         df_predicts.append(df_predict)
+
+        df_predict.to_csv(os.path.join(file_path, f"filename_{n_forward*n_lags}.csv"), index=False)
+
     return df_predicts, df_test
 
 
@@ -111,9 +118,9 @@ def eval_historical_average(traffic_reading_df, period):
         logger.info(line)
 
 
-def eval_var(traffic_reading_df, n_lags=3):
+def eval_var(traffic_reading_df, output_folder, n_lags=3):
     n_forwards = [1, 3, 6, 12]
-    y_predicts, y_test = var_predict(traffic_reading_df, n_forwards=n_forwards, n_lags=n_lags,
+    y_predicts, y_test = var_predict(traffic_reading_df, output_folder, n_forwards=n_forwards, n_lags=n_lags,
                                      test_ratio=0.2)
     logger.info('VAR (lag=%d)' % n_lags)
     logger.info('Model\tHorizon\tRMSE\tMAPE\tMAE')
@@ -127,15 +134,18 @@ def eval_var(traffic_reading_df, n_lags=3):
 
 def main(args):
     traffic_reading_df = pd.read_hdf(args.traffic_reading_filename)
+    output_folder = args.output_folder
     eval_static(traffic_reading_df)
-    eval_historical_average(traffic_reading_df, period=7 * 24 * 12)
-    eval_var(traffic_reading_df, n_lags=3)
+    eval_historical_average(traffic_reading_df, period=5)
+    eval_var(traffic_reading_df, output_folder, n_lags=3)
 
 
 if __name__ == '__main__':
-    logger = utils.get_logger('data/model', 'Baseline')
+    logger = utils.get_logger('../data/model', 'Baseline')
     parser = argparse.ArgumentParser()
-    parser.add_argument('--traffic_reading_filename', default="data/metr-la.h5", type=str,
-                        help='Path to the traffic Dataframe.')
+    parser.add_argument('--traffic_reading_filename', default="../data/users.h5", type=str,
+                        help='Path to the traffic DataFrame.')
+    parser.add_argument('--output_folder', default='../data/forecasting/users/', type=str,
+                        help='Path to save predictions DataFrame')
     args = parser.parse_args()
     main(args)
