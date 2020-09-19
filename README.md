@@ -38,3 +38,22 @@ Evaluate training:
 ---
 
 ## LSTM
+
+LSTM model is located in LSTM folder.
+
+To run it first create virtualenv
+1. python3 -m virtualenv venv
+2. . venv/bin/activate (linux users)
+3. pip install -r requirements.txt
+4. init your jupyter notebook and open LSTM/LSTM Forecasting.ipynb
+
+
+## nootebooks
+
+This folder contains the notebooks created to compare DCRNN and LSTM methos.
+Also, it contains the EDA made in the dataset: City Cellular Traffic Map
+
+## data
+Contains all results and processed files generated during this research
+
+
